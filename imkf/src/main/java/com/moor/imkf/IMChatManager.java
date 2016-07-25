@@ -22,6 +22,9 @@ import com.moor.imkf.requesturl.RequestUrl;
 import com.moor.imkf.tcpservice.service.IMService;
 import com.moor.imkf.utils.LogUtil;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +66,7 @@ public class IMChatManager {
      * 会话结束
      */
     public static final String FINISH_ACTION = "action_finish";
+    private  boolean isInvestigateOn = true;
 
     private Context appContext;
 
@@ -299,7 +303,13 @@ public class IMChatManager {
             String succeed = HttpParser.getSucceed(responseString);
             LogUtil.d("IMChatManger", "biginSession:"+responseString);
             if ("true".equals(succeed)) {
-
+                try {
+                    JSONObject jsonObject = new JSONObject(responseString);
+                    JSONObject config = jsonObject.getJSONObject("Config");
+                    isInvestigateOn = config.getBoolean("webchat_csr");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 if(listener != null) {
                     listener.onSuccess();
                 }
@@ -509,5 +519,11 @@ public class IMChatManager {
             RequestUrl.QiniuHttp = qiNiuIp;
         }
     }
-
+    /**
+     * 满意度评价是否开启
+     * @return
+     */
+    public boolean isInvestigateOn() {
+        return isInvestigateOn;
+    }
 }

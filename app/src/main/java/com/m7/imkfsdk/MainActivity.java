@@ -30,34 +30,13 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
-    private SharedPreferences sp;
     private LoadingFragmentDialog loadingDialog;
-
-
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 0x444:
-                    loadingDialog.dismiss();
-                    getPeers();
-
-                    break;
-                case 0x555:
-                    loadingDialog.dismiss();
-                    Toast.makeText(MainActivity.this, "客服初始化失败", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.kf_activity_main);
-        sp = getSharedPreferences("setting", 0);
         loadingDialog = new LoadingFragmentDialog();
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,8 +76,6 @@ public class MainActivity extends Activity {
     }
 
     private void init() {
-        //填写过参数才能登录
-//                if(!"".equals(sp.getString("accessId", ""))) {
             loadingDialog.show(getFragmentManager(), "");
             if (MobileApplication.isKFSDK) {
                 loadingDialog.dismiss();
@@ -106,9 +83,6 @@ public class MainActivity extends Activity {
             } else {
                 startKFService();
             }
-//                }else {
-//                    Toast.makeText(MainActivity.this, "请先设置参数", Toast.LENGTH_SHORT).show();
-//                }
     }
 
     private void getPeers() {
@@ -169,9 +143,7 @@ public class MainActivity extends Activity {
                 });
 
                 //初始化IMSdk,填入相关参数
-//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "0e7fb510-3931-11e6-8df8-8f2e14b5dba3", "7moor测试", "7777");
-                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "2ff6ebc0-e40c-11e5-82a5-51d279813f91", "AT", "8888");
-//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "206ef9e0-41c7-11e6-abe7-c9cb83533f27", "雅希测试", "8888");
+                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "2ff6ebc0-e40c-11e5-82a5-51d279813f91", "ATest", "8888");
             }
         }.start();
 

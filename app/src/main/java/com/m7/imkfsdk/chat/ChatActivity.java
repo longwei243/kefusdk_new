@@ -184,35 +184,29 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 			}
 			if ("拍照".equals(msg.obj)) {
 				if(Build.VERSION.SDK_INT < 23) {
-					System.out.println("sdk < 23");
 					takePicture();
 				}else {
 					//6.0
-					System.out.println("sdk 6.0");
 					if(ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
 						//该权限已经有了
 						takePicture();
 					}else {
 						//申请该权限
-						System.out.println("申请该权限");
 						ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA}, 0x3333);
 					}
 				}
 			} else if ("图库".equals(msg.obj)) {
 
 				if(Build.VERSION.SDK_INT < 23) {
-					System.out.println("sdk < 23");
 					openAlbum();
 				}else {
 					//6.0
-					System.out.println("sdk 6.0");
 					if(ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 						//该权限已经有了
 						System.out.println("权限已经有了");
 						openAlbum();
 					}else {
 						//申请该权限
-						System.out.println("申请该权限");
 						ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0x2222);
 					}
 				}
@@ -794,7 +788,7 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 
 		pointViewsMore = new ArrayList<ImageView>();
 		ImageView imageView;
-
+		mChatIvImageMore.removeAllViews();
 		for (int i = 0; i < morePageViews.size(); i++) {
 			imageView = new ImageView(this);
 			imageView.setBackgroundResource(R.drawable.kf_d1);
@@ -1308,6 +1302,46 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 			@Override
 			public void onSuccess() {
 
+				if(IMChatManager.getInstance().isInvestigateOn()) {
+					//显示评价按钮
+					moreList.clear();
+					ChatMore chatMore1 = new ChatMore(1, R.drawable.kf_icon_chat_photo + "",
+							"拍照");
+					ChatMore chatMore2 = new ChatMore(2, R.drawable.kf_icon_chat_pic + "",
+							"图库");
+					ChatMore chatMore3 = new ChatMore(3, R.drawable.kf_icon_chat_location + "",
+							"评价");
+					moreList.add(chatMore1);
+					moreList.add(chatMore2);
+					moreList.add(chatMore3);
+
+					moreLists.clear();
+					int pageCount = (int) Math.ceil(moreList.size() / 8 + 0.1);
+					for (int i = 0; i < pageCount; i++) {
+						moreLists.add(getData(i));
+					}
+					initMoreViewPager();
+					initMorePoint();
+					initMoreData();
+				}else {
+					//隐藏评价按钮
+					moreList.clear();
+					ChatMore chatMore1 = new ChatMore(1, R.drawable.kf_icon_chat_photo + "",
+							"拍照");
+					ChatMore chatMore2 = new ChatMore(2, R.drawable.kf_icon_chat_pic + "",
+							"图库");
+					moreList.add(chatMore1);
+					moreList.add(chatMore2);
+
+					moreLists.clear();
+					int pageCount = (int) Math.ceil(moreList.size() / 8 + 0.1);
+					for (int i = 0; i < pageCount; i++) {
+						moreLists.add(getData(i));
+					}
+					initMoreViewPager();
+					initMorePoint();
+					initMoreData();
+				}
 			}
 
 			@Override
