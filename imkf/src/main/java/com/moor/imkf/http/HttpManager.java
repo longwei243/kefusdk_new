@@ -18,7 +18,10 @@ import com.moor.imkf.okhttp.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -83,17 +86,21 @@ public class HttpManager {
 
 		JSONObject json = new JSONObject();
 		try {
-			json.put("ConnectionId", Utils.replaceBlank(connectionId));
 			if(FromToMessage.MSG_TYPE_TEXT.equals(fromToMessage.msgType)) {
 				json.put("ContentType", "text");
+				json.put("Message", URLEncoder.encode(fromToMessage.message, "utf-8"));
 			}else if(FromToMessage.MSG_TYPE_IMAGE.equals(fromToMessage.msgType)) {
 				json.put("ContentType", "image");
+				json.put("Message", URLEncoder.encode(fromToMessage.message, "utf-8"));
 			}else if(FromToMessage.MSG_TYPE_AUDIO.equals(fromToMessage.msgType)) {
 				json.put("ContentType", "voice");
+				json.put("Message", URLEncoder.encode(fromToMessage.message, "utf-8"));
+				json.put("VoiceSecond", fromToMessage.voiceSecond);
+			}else if(FromToMessage.MSG_TYPE_FILE.equals(fromToMessage.msgType)) {
+				json.put("ContentType", "file");
+				json.put("Message", URLEncoder.encode(fromToMessage.message + "?fileName="+fromToMessage.fileName, "utf-8"));
 			}
-
-			json.put("Message", URLEncoder.encode(fromToMessage.message, "utf-8"));
-			json.put("VoiceSecond", fromToMessage.voiceSecond);
+			json.put("ConnectionId", Utils.replaceBlank(connectionId));
 			json.put("Action", "sdkNewMsg");
 			post(json.toString(), listener);
 
@@ -119,6 +126,23 @@ public class HttpManager {
 		map.put("ConnectionId", Utils.replaceBlank(connectionId));
 		map.put("ReceivedMsgIds", array);
 		map.put("Action", "sdkGetMsg");
+		JSONWriter jw = new JSONWriter();
+		post(jw.write(map), listener);
+
+	}
+
+	/**
+	 * 消息确认到达
+	 * @param connectionId
+	 * @param array
+	 * @param listener
+     */
+	public static void getMsgACK(String connectionId, ArrayList array,
+							  final HttpResponseListener listener) {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("ConnectionId", Utils.replaceBlank(connectionId));
+		map.put("ReceivedMsgIds", array);
+		map.put("Action", "sdkMessageConfirm");
 		JSONWriter jw = new JSONWriter();
 		post(jw.write(map), listener);
 
@@ -210,6 +234,7 @@ public class HttpManager {
 			if(peerId != null && !"".equals(peerId)) {
 				json.put("ToPeer", peerId);
 			}
+			json.put("sdkAndroidVersionCode", 2);
 			post(json.toString(), listener);
 
 		} catch (JSONException e) {
@@ -271,4 +296,87 @@ public class HttpManager {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * 下载文件
+	 */
+	public static void downloadFile(String url, final File file,
+							 final FileDownLoadListener listener) {
+		Request request = new Request.Builder()
+				.get()
+				.url(url)
+				.build();
+		Call call = httpClient.newCall(request);
+		call.enqueue(new Callback() {
+			@Override
+			public void onFailure(Request request, IOException e) {
+				if(listener != null) {
+					mDelivery.post(new Runnable() {
+						@Override
+						public void run() {
+							listener.onFailed();
+						}
+					});
+
+				}
+			}
+			@Override
+			public void onResponse(Response response){
+				if(listener != null && file != null) {
+					InputStream is = null;
+					byte[] buf = new byte[2048];
+					int len = 0;
+					FileOutputStream fos = null;
+					try {
+						is = response.body().byteStream();
+						final long total = response.body().contentLength();
+						long sum = 0;
+						int oldProgress = 0;
+						fos = new FileOutputStream(file);
+						while ((len = is.read(buf)) != -1)
+						{
+							sum += len;
+							fos.write(buf, 0, len);
+							final long finalSum = sum;
+							int progress = (int)(finalSum * 100.0f / total);
+
+							if(oldProgress != progress && progress % 3 == 0) {
+								mDelivery.post(new Runnable() {
+									@Override
+									public void run() {
+										listener.onProgress((int)(finalSum * 100.0f / total));
+									}
+								});
+							}
+							oldProgress = progress;
+						}
+						fos.flush();
+						mDelivery.post(new Runnable() {
+							@Override
+							public void run() {
+								listener.onSuccess(file);
+							}
+						});
+					}catch (IOException e) {
+						mDelivery.post(new Runnable() {
+							@Override
+							public void run() {
+								listener.onFailed();
+							}
+						});
+					}finally {
+						try {
+							if (is != null) is.close();
+						} catch (IOException e) {
+						}
+						try {
+							if (fos != null) fos.close();
+						} catch (IOException e){
+						}
+					}
+				}
+			}
+		});
+	}
+
 }

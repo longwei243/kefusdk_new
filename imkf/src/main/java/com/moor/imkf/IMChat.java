@@ -1,22 +1,28 @@
 package com.moor.imkf;
 
 import android.content.Context;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.moor.imkf.db.dao.InfoDao;
 import com.moor.imkf.db.dao.MessageDao;
+import com.moor.imkf.http.FileDownLoadListener;
 import com.moor.imkf.http.HttpManager;
 import com.moor.imkf.http.HttpResponseListener;
 import com.moor.imkf.model.entity.FromToMessage;
 import com.moor.imkf.model.parser.HttpParser;
 import com.moor.imkf.qiniu.http.ResponseInfo;
 import com.moor.imkf.qiniu.storage.UpCompletionHandler;
+import com.moor.imkf.qiniu.storage.UpProgressHandler;
 import com.moor.imkf.qiniu.storage.UploadManager;
+import com.moor.imkf.qiniu.storage.UploadOptions;
 import com.moor.imkf.requesturl.RequestUrl;
 import com.moor.imkf.utils.LogUtil;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -62,7 +68,6 @@ public class IMChat {
             MessageDao.getInstance().insertSendMsgsToDao(fromToMessage);
 
             //获取7牛token
-//		    System.out.println("从服务器获取七牛的token");
             HttpManager.getQiNiuToken(connectionId,
                     fromToMessage.filePath, new UploadFileResponseHandler("ly", fromToMessage, chatListener));
         }else if(fromToMessage.msgType.equals(FromToMessage.MSG_TYPE_IMAGE)) {
@@ -70,9 +75,16 @@ public class IMChat {
             MessageDao.getInstance().insertSendMsgsToDao(fromToMessage);
 
             //获取7牛token
-//		    System.out.println("从服务器获取七牛的token");
             HttpManager.getQiNiuToken(connectionId,
                     fromToMessage.filePath, new UploadFileResponseHandler("img", fromToMessage, chatListener));
+
+        }else if(fromToMessage.msgType.equals(FromToMessage.MSG_TYPE_FILE)) {
+            fromToMessage.sendState = "sending";
+            MessageDao.getInstance().insertSendMsgsToDao(fromToMessage);
+
+            //获取7牛token
+            HttpManager.getQiNiuToken(connectionId,
+                    fromToMessage.filePath, new UploadFileResponseHandler("file", fromToMessage, chatListener));
 
         }
 
@@ -129,7 +141,6 @@ public class IMChat {
                                 public void complete(String key,
                                                      ResponseInfo info, JSONObject response) {
                                     // TODO Auto-generated method stub
-//									System.out.println("上传图片成功了");
                                     System.out.println(key + "     " + info
                                             + "      " + response);
 
@@ -140,7 +151,14 @@ public class IMChat {
 									HttpManager.newMsgToServer(InfoDao.getInstance().getConnectionId(),
 											fromToMessage, new NewMessageResponseHandler(fromToMessage, chatListener));
                                 }
-                            },null);
+                            },new UploadOptions(null, null, false,
+                                    new UpProgressHandler(){
+                                        public void progress(String key, final double percent){
+                                            Log.i("qiniu", key + ": " + (int) (percent * 100));
+                                            int progress = (int) (percent * 100);
+                                            chatListener.onProgress();
+                                        }
+                                    }, null));
 
                 } else if ("ly".equals(fileType)) {// 音频文件
                     String fileName = UUID.randomUUID().toString();
@@ -166,7 +184,43 @@ public class IMChat {
 									HttpManager.newMsgToServer(InfoDao.getInstance().getConnectionId(),
 											fromToMessage, new NewMessageResponseHandler(fromToMessage, chatListener));
                                 }
-                            }, null);
+                            }, new UploadOptions(null, null, false,
+                                    new UpProgressHandler(){
+                                        public void progress(String key, final double percent){
+                                            Log.i("qiniu", key + ": " + (int) (percent * 100));
+                                            int progress = (int) (percent * 100);
+                                            chatListener.onProgress();
+                                        }
+                                    }, null));
+                } else if ("file".equals(fileType)) {// 音频文件
+                    String fileName = fromToMessage.fileName;
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");
+                    String date = sdf.format(new Date());
+                    final String fileKey = "kefu/file/"+date + "/"+ System.currentTimeMillis()+"/"+fileName;
+
+
+                    uploadManager.put(fromToMessage.filePath, fileKey, upToken,
+                            new UpCompletionHandler() {
+                                @Override
+                                public void complete(String key,
+                                                     ResponseInfo info, JSONObject response) {
+                                    //设置获得的url
+                                    fromToMessage.message = RequestUrl.QiniuHttp + fileKey+"?fileName="+fromToMessage.fileName+"?fileSize="+fromToMessage.fileSize;
+                                    MessageDao.getInstance().updateMsgToDao(fromToMessage);
+                                    //发送新消息给服务器
+                                    HttpManager.newMsgToServer(InfoDao.getInstance().getConnectionId(),
+                                            fromToMessage, new NewMessageResponseHandler(fromToMessage, chatListener));
+                                }
+                            }, new UploadOptions(null, null, false,
+                                    new UpProgressHandler(){
+                                        public void progress(String key, final double percent){
+                                            Log.i("qiniu", key + ": " + (int) (percent * 100));
+                                            int progress = (int) (percent * 100);
+                                            fromToMessage.fileProgress = progress;
+                                            MessageDao.getInstance().updateMsgToDao(fromToMessage);
+                                            chatListener.onProgress();
+                                        }
+                                    }, null));
                 }
             } else {
 //				Toast.makeText(ChatActivity.this, message, 3000).show();
@@ -225,20 +279,7 @@ public class IMChat {
      * @return
      */
     public String getSessionId() {
-//        String deviceId = getDeviceId();
-//        String accessId = InfoDao.getInstance().getAccessId();
-//        String userId = InfoDao.getInstance().getUserId();
-//        String sessionId = "";
-//        if(accessId != null && !"".equals(accessId)) {
-//            if(userId != null && !"".equals(userId)) {
-//                sessionId = deviceId + "@" + userId + "@android";
-//            }else {
-//                sessionId = deviceId + "@android";
-//            }
-//        }
-
         return sessionId;
-
     }
 
     public void setSessionId(String sessionId) {
@@ -289,9 +330,69 @@ public class IMChat {
             HttpManager.getQiNiuToken(InfoDao.getInstance().getConnectionId(),
                     fromToMessage.filePath, new UploadFileResponseHandler("img", fromToMessage, chatListener));
 
+        }else if(fromToMessage.msgType.equals(FromToMessage.MSG_TYPE_FILE)) {
+            fromToMessage.sendState = "sending";
+            MessageDao.getInstance().updateMsgToDao(fromToMessage);
+
+            //获取7牛token
+            HttpManager.getQiNiuToken(InfoDao.getInstance().getConnectionId(),
+                    fromToMessage.filePath, new UploadFileResponseHandler("file", fromToMessage, chatListener));
+
         }
+    }
 
 
+    public void downLoadFile(final FromToMessage message, final FileMessageDownLoadListener listener) {
+        if(message != null) {
+            if (message.filePath == null || "".equals(message.filePath)) {
+                final String dirStr = Environment.getExternalStorageDirectory() +  File.separator + "m7" + File.separator + "fileDownload";
+                File dir = new File(dirStr);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+
+                }
+                File file = new File(dir, message.fileName);
+                if (file.exists()) {
+                    file.delete();
+                }
+                HttpManager.downloadFile(message.message, file, new FileDownLoadListener() {
+                    @Override
+                    public void onSuccess(File file) {
+                        message.filePath = file.getAbsolutePath();
+                        message.fileDownLoadStatus = "success";
+                        message.fileProgress = 100;
+                        MessageDao.getInstance().updateMsgToDao(message);
+
+                        if(listener != null) {
+                            listener.onSuccess(file);
+                        }
+                    }
+
+                    @Override
+                    public void onFailed() {
+
+                        message.fileProgress = 0;
+                        message.fileDownLoadStatus = "failed";
+                        MessageDao.getInstance().updateMsgToDao(message);
+
+                        if(listener != null) {
+                            listener.onFailed();
+                        }
+                    }
+
+                    @Override
+                    public void onProgress(int progress) {
+                        message.fileProgress = progress;
+                        message.fileDownLoadStatus = "downloading";
+                        MessageDao.getInstance().updateMsgToDao(message);
+
+                        if(listener != null) {
+                            listener.onProgress();
+                        }
+                    }
+                });
+            }
+        }
     }
 
 }

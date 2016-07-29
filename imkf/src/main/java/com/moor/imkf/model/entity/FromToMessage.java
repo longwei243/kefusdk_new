@@ -29,10 +29,11 @@ public class FromToMessage {
 	 * 消息类型：评价
 	 */
 	public static final String MSG_TYPE_INVESTIGATE = "3";
+	/**
+	 * 消息类型：文件
+	 */
+	public static final String MSG_TYPE_FILE = "4";
 
-
-//	@DatabaseField(generatedId = true)
-//	public int id;
 	/**
 	 * 消息的id
 	 */
@@ -88,6 +89,19 @@ public class FromToMessage {
 	 */
 	@DatabaseField
 	public String filePath;
+	@DatabaseField
+	public String fileName;
+	@DatabaseField
+	public String fileSize;
+	@DatabaseField
+	public Integer fileProgress;
+	@DatabaseField
+	public String fileUpLoadStatus;
+	/**
+	 * 文件下载状态,downloading,success,failed
+	 */
+	@DatabaseField
+	public String fileDownLoadStatus;
 	/**
 	 * 录音的时间
 	 */

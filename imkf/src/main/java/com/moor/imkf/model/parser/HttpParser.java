@@ -153,36 +153,48 @@ public class HttpParser {
 			JSONObject o = new JSONObject(responseString);
 			JSONArray o1 = o.getJSONArray("data");
 			for (int i=0; i<o1.length(); i++) {
+				FromToMessage message = new FromToMessage();
+
 				JSONObject jb = o1.getJSONObject(i);
 				String _id = jb.getString("_id");
 				String sid = jb.getString("sid");
 				Long when = jb.getLong("when");
 				String content = jb.getString("content");
 				String msgType = "0";
+				message.message = content;
 				if(jb.getString("contentType") != null) {
-					msgType = jb.getString("contentType");
-					if("text".equals(msgType)) {
+					String type = jb.getString("contentType");
+					if("text".equals(type)) {
 						msgType = "0";
-					}else if("image".equals(msgType)) {
+					}else if("image".equals(type)) {
 						msgType = "1";
+					}else if("file".equals(type)) {
+						msgType = "4";
+						String[] str = content.split("\\?fileName=");
+						if(str.length == 2) {
+							message.message = str[0];
+							String nameAndSizeStr = str[1];
+							String[] ns = nameAndSizeStr.split("\\?fileSize=");
+							if(ns.length == 2) {
+								message.fileName = ns[0];
+								message.fileSize = ns[1];
+								message.fileProgress = 0;
+								message.fileDownLoadStatus = "failed";
+							}
+						}
 					}
 				}
 				boolean showHtml = jb.getBoolean("showHtml");
 
-
-				FromToMessage message = new FromToMessage();
 				message._id = _id;
 				message.sessionId = sid;
 				message.when = when;
-				message.message = content;
 				message.msgType = msgType;
 				message.showHtml = showHtml;
-
 
 				newMessage.add(message);
 
 			}
-
 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

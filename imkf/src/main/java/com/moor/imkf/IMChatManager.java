@@ -466,7 +466,6 @@ public class IMChatManager {
         @Override
         public void onSuccess(String responseString) {
             String succeed = HttpParser.getSucceed(responseString);
-            System.out.println("获取技能组返回数据:"+responseString);
             if ("true".equals(succeed)) {
                 if(listener != null) {
                     List<Peer> peers = HttpParser.getPeers(responseString);
@@ -526,4 +525,5 @@ public class IMChatManager {
     public boolean isInvestigateOn() {
         return isInvestigateOn;
     }
+
 }

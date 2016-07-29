@@ -9,8 +9,6 @@ import java.io.InputStream;
 
 /**
  * 气泡对话框.9图处理
- * @author Mr.li
- *
  */
 public class AnimatedGifDrawable extends AnimationDrawable {
 

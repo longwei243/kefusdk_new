@@ -97,4 +97,27 @@ public class IMMessage {
 
         }
     }
+
+    /**
+     * 构建文件类型消息
+     * @param
+     * @return
+     */
+    public static FromToMessage createFileMessage(String path, String fileName, String fileSize) {
+        FromToMessage fromToMessage = new FromToMessage();
+        fromToMessage.msgType = FromToMessage.MSG_TYPE_FILE;
+        fromToMessage.userType = "0";
+        fromToMessage.when = System.currentTimeMillis();
+        fromToMessage.sessionId = IMChat.getInstance().getSessionId();
+        fromToMessage.tonotify  = IMChat.getInstance().get_id();
+        fromToMessage.type = "User";
+        fromToMessage.from = IMChat.getInstance().get_id();
+        fromToMessage.filePath = path;
+        fromToMessage.fileName = fileName;
+        fromToMessage.fileProgress = 0;
+        fromToMessage.fileUpLoadStatus = "上传中...";
+        fromToMessage.fileSize = fileSize;
+
+        return fromToMessage;
+    }
 }

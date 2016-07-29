@@ -19,6 +19,8 @@ public class ChatRowUtils {
             return 400;
         }else if(FromToMessage.MSG_TYPE_INVESTIGATE.equals(msg.msgType)) {
             return 500;
+        }else if(FromToMessage.MSG_TYPE_FILE.equals(msg.msgType)) {
+            return 600;
         }
         return 0;
     }
@@ -47,6 +49,11 @@ public class ChatRowUtils {
 
             }
             return ChatRowType.INVESTIGATE_ROW_TRANSMIT.getId();
+        }else if(FromToMessage.MSG_TYPE_FILE.equals(iMessage.msgType)) {
+            if("1".equals(iMessage.userType)) {
+                return ChatRowType.FILE_ROW_RECEIVED.getId();
+            }
+            return ChatRowType.FILE_ROW_TRANSMIT.getId();
         }
         return -1;
     }

@@ -11,9 +11,6 @@ import java.util.Map;
 
 /**
  * Convert JSON String to Object.
- * 
- * @author Cai Zhibin
- *
  */
 public class JSONReader {
 

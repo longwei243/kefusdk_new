@@ -8,5 +8,5 @@ public interface ChatListener {
 
     void onSuccess();
     void onFailed();
-    void onProcess();
+    void onProgress();
 }

@@ -36,7 +36,11 @@ public enum ChatRowType {
     /**
      * 发送的评价类型
      */
-    INVESTIGATE_ROW_TRANSMIT("C500T" , Integer.valueOf(7));
+    INVESTIGATE_ROW_TRANSMIT("C500T" , Integer.valueOf(7)),
+
+    FILE_ROW_RECEIVED("C600R" , Integer.valueOf(8)),
+
+    FILE_ROW_TRANSMIT("C600T" , Integer.valueOf(9));
 
     private final Integer mId;
     private final Object mDefaultValue;

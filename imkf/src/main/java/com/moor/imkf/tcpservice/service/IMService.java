@@ -163,13 +163,38 @@ public class IMService extends Service{
 					// 存入手机数据库
 					MessageDao.getInstance().insertGetMsgsToDao(fromToMessage);
 
+					ArrayList<String> array = MessageDao.getInstance()
+							.getUnReadDao();
+					HttpManager.getMsg(InfoDao.getInstance().getConnectionId(), array,
+							new getMsgAckResponseHandler(context));
 				}
+			}
+
+		}
+	}
+
+	class getMsgAckResponseHandler implements HttpResponseListener {
+		Context context;
+		public getMsgAckResponseHandler(Context context) {
+			this.context = context;
+		}
+
+		@Override
+		public void onFailed() {
+		}
+
+		@Override
+		public void onSuccess(String responseString) {
+			String succeed = HttpParser.getSucceed(responseString);
+			if ("true".equals(succeed)) {
+				System.out.println("消息确认到达");
 				Intent intnet = new Intent(IMChatManager.NEW_MSG_ACTION);
 				context.sendBroadcast(intnet);
 			}
 
 		}
 	}
+
 
 	/**
 	 * 从网络获取大量消息数据
@@ -193,7 +218,6 @@ public class IMService extends Service{
 		@Override
 		public void onSuccess(String responseString) {
 			String succeed = HttpParser.getSucceed(responseString);
-			String message = HttpParser.getMessage(responseString);
 			largeMsgId = HttpParser.getLargeMsgId(responseString);
 			boolean hasMore = HttpParser.hasMoreMsgs(responseString);
 			fromToMessage.clear();
@@ -206,6 +230,11 @@ public class IMService extends Service{
 				// 存入手机数据库
 				MessageDao.getInstance().insertGetMsgsToDao(fromToMessage);
 
+				ArrayList<String> array = MessageDao.getInstance()
+						.getUnReadDao();
+				HttpManager.getMsg(InfoDao.getInstance().getConnectionId(), array,
+						new getMsgAckResponseHandler(context));
+
 				if(hasMore) {
 					//还有更多的消息，继续去取
 					getLargeMsgsFromNet(largeMsgId);
@@ -213,8 +242,6 @@ public class IMService extends Service{
 					//没有了，刷新界面
 					LogUtil.d("获取大量消息数据", "没有更多的数据了");
 				}
-				Intent intnet = new Intent("com.moor.im.NEW_MSG");
-				context.sendBroadcast(intnet);
 			}
 		}
 	}

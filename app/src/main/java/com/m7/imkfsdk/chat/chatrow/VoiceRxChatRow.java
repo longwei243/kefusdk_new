@@ -29,7 +29,6 @@ public class VoiceRxChatRow extends BaseChatRow {
         VoiceViewHolder holder = (VoiceViewHolder) baseHolder;
         FromToMessage message = detail;
         if(message != null) {
-//            holder.getTimeTextView().setText(Math.round(message.recordTime) + "\"");
         }
     }
 

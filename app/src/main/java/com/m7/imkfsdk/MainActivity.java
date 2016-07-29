@@ -143,7 +143,9 @@ public class MainActivity extends Activity {
                 });
 
                 //初始化IMSdk,填入相关参数
+//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "1cf5bdb0-c66d-11e5-9875-63635d52845f", "正式环境测试号", "8888");
                 IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "2ff6ebc0-e40c-11e5-82a5-51d279813f91", "ATest", "8888");
+//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "4db84e50-2b93-11e6-8e31-2589dcc314d2", "TestTest", "8888");
             }
         }.start();
 
