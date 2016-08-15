@@ -16,15 +16,16 @@
         />
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/chatting_time_tv" >
+        android:layout_below="@id/chatting_time_tv"
+        android:layout_marginLeft="48dp"
+        >
 
         <RelativeLayout
             android:id="@+id/chart_to_container"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="48dp"
             android:layout_alignParentRight="true" >
 
             <ImageView
@@ -53,6 +54,7 @@
                         android:id="@+id/chat_content_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:maxWidth="320dp"
                         android:background="@drawable/kf_chatto_bg_normal"
                         android:gravity="center_vertical"
                         android:lineSpacingMultiplier="1.1"
@@ -62,7 +64,7 @@
                         android:paddingTop="10dp" />
                 </FrameLayout>
                 <!-- 文本end -->
-        </RelativeLayout>
+            </RelativeLayout>
             <ImageView
                 android:id="@+id/chatting_state_iv"
                 android:layout_width="20dp"
@@ -78,7 +80,7 @@
                 android:layout_height="20dp"
                 android:layout_toLeftOf="@id/chatto_content_layout"
                 android:layout_centerVertical="true" />
-        </RelativeLayout>
+            </RelativeLayout>
     </RelativeLayout>
 
 </RelativeLayout>

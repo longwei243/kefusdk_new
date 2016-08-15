@@ -54,13 +54,13 @@ public class InvestigateDialog extends DialogFragment {
                 IMChatManager.getInstance().submitInvestigate(investigate, new SubmitInvestigateListener() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(getActivity(), "评价提交成功", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(), "评价提交成功", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
 
                     @Override
                     public void onFailed() {
-                        Toast.makeText(getActivity(), "评价提交失败", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(), "评价提交失败", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 });

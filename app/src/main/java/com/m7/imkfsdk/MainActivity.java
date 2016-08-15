@@ -23,6 +23,7 @@ import com.moor.imkf.GetPeersListener;
 import com.moor.imkf.IMChatManager;
 import com.moor.imkf.InitListener;
 import com.moor.imkf.model.entity.Peer;
+import com.moor.imkf.utils.NetUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -32,11 +33,14 @@ public class MainActivity extends Activity {
 
     private LoadingFragmentDialog loadingDialog;
 
+    private SharedPreferences sp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.kf_activity_main);
+        sp = getSharedPreferences("setting", 0);
         loadingDialog = new LoadingFragmentDialog();
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +80,12 @@ public class MainActivity extends Activity {
     }
 
     private void init() {
+
+        if(!NetUtils.hasDataConnection(MainActivity.this)) {
+            Toast.makeText(MainActivity.this, "当前没有网络连接", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
             loadingDialog.show(getFragmentManager(), "");
             if (MobileApplication.isKFSDK) {
                 loadingDialog.dismiss();
@@ -120,6 +130,18 @@ public class MainActivity extends Activity {
 
     private void startKFService() {
 
+//        final String accessId = sp.getString("accessId", "1cf5bdb0-c66d-11e5-9875-63635d52845f");
+//        final String name = sp.getString("name", "正式环境测试号0801");
+//        final String userId = sp.getString("userId", "8888");
+//        String tcp_ip = sp.getString("tcpIp", "115.29.190.253");
+//        String http_ip = sp.getString("httpIp", "http://115.29.190.253:4999/sdkChat");
+//
+//        System.out.println("accessId is:"+accessId+",name is:"+name+",tcpip is:"+tcp_ip);
+//
+//        IMChatManager.getInstance().setTcpIpAndPort(tcp_ip, 8006);
+//        IMChatManager.getInstance().setHttpIp(http_ip);
+
+
         new Thread() {
             @Override
             public void run() {
@@ -138,14 +160,14 @@ public class MainActivity extends Activity {
                         MobileApplication.isKFSDK = false;
                         loadingDialog.dismiss();
                         Toast.makeText(MainActivity.this, "客服初始化失败", Toast.LENGTH_SHORT).show();
-                        Log.d("MobileApplication", "sdk初始化失败");
+                        Log.d("MobileApplication", "sdk初始化失败, 请填写正确的accessid");
                     }
                 });
 
                 //初始化IMSdk,填入相关参数
-//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "1cf5bdb0-c66d-11e5-9875-63635d52845f", "正式环境测试号", "8888");
-                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "2ff6ebc0-e40c-11e5-82a5-51d279813f91", "ATest", "8888");
-//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "4db84e50-2b93-11e6-8e31-2589dcc314d2", "TestTest", "8888");
+//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", accessId, name, userId);
+//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "2ff6ebc0-e40c-11e5-82a5-51d279813f91", "ATest", "8888");
+                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "1cf5bdb0-c66d-11e5-9875-63635d52845f", "TestTest", "777");
             }
         }.start();
 

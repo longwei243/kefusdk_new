@@ -55,7 +55,7 @@ public class NetWorkReceiver extends BroadcastReceiver{
 				case TelephonyManager.NETWORK_TYPE_LTE:
 					//4g
 					break;
-				
+
 				}
 			}
 
@@ -63,13 +63,13 @@ public class NetWorkReceiver extends BroadcastReceiver{
 				//重新连接网络后启动断线重连
 				LogUtil.d("NetWorkReceiver", "网络重新连接上启动断线重连，发送了启动断线重连的事件");
 
-				EventBus.getDefault().postSticky(KFSocketEvent.NETWORK_OK);
+				EventBus.getDefault().post(KFSocketEvent.NETWORK_OK);
 			}
-			
+
 		}else {
 			//网络断了
 			isNetConnected = false;
-			EventBus.getDefault().postSticky(KFSocketEvent.NETWORK_DOWN);
+			EventBus.getDefault().post(KFSocketEvent.NETWORK_DOWN);
 		}
 	}
 

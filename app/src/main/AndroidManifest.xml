@@ -30,8 +30,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.m7.imkfsdk.chat.ChatActivity"
-            android:launchMode="singleTask"
+            android:name="com.m7.imkfsdk.SettingActivity"
+            android:screenOrientation="portrait"
+            >
+        </activity>
+        <activity
+        android:name="com.m7.imkfsdk.chat.ChatActivity"
+        android:launchMode="singleTask"
+        android:screenOrientation="portrait"
+        >
+    </activity>
+        <activity
+            android:name="com.m7.imkfsdk.chat.OfflineMessageActicity"
             android:screenOrientation="portrait"
             >
         </activity>

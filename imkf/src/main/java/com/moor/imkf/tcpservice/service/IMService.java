@@ -73,9 +73,6 @@ public class IMService extends Service{
 		heartBeatMgr.reset();
 		LogUtil.d("IMService", "进入了onDestroy方法， 重置了管理类");
 
-//		Intent imserviceIntent = new Intent(context, IMService.class);
-//		context.startService(imserviceIntent);
-
 		super.onDestroy();
 	}
 
@@ -153,7 +150,6 @@ public class IMService extends Service{
 			if ("true".equals(succeed)) {
 				if(isLargeMsg) {
 					//有大量的数据
-					LogUtil.d("消息接收器", "有大量消息要来了");
 					getLargeMsgsFromNet(largeMsgId);
 				}else {
 					//没有大量的数据
@@ -187,7 +183,6 @@ public class IMService extends Service{
 		public void onSuccess(String responseString) {
 			String succeed = HttpParser.getSucceed(responseString);
 			if ("true".equals(succeed)) {
-				System.out.println("消息确认到达");
 				Intent intnet = new Intent(IMChatManager.NEW_MSG_ACTION);
 				context.sendBroadcast(intnet);
 			}
@@ -274,6 +269,7 @@ public class IMService extends Service{
 		loginMgr.setLoginOff(false);
 		//登录成功了发送心跳
 		heartBeatMgr.onloginSuccess();
+		socketMgr.isReLogin = false;
 
 	}
 

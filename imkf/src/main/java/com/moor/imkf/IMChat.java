@@ -307,6 +307,7 @@ public class IMChat {
      */
     public void reSendMessage(FromToMessage fromToMessage, ChatListener chatListener) {
 
+        connectionId = InfoDao.getInstance().getConnectionId();
         if(fromToMessage.msgType.equals(FromToMessage.MSG_TYPE_TEXT)) {
             //文本消息
             fromToMessage.sendState = "sending";

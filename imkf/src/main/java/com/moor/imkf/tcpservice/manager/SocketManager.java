@@ -25,6 +25,8 @@ public class SocketManager {
 	private Context context;
 
 	private HeartBeatManager heartBeatManager;
+
+	public boolean isReLogin = false;
 	
 	private SocketManager(Context context) {
 		this.context = context;
@@ -55,6 +57,9 @@ public class SocketManager {
 	 * 连接tcp服务器
 	 */
 	public void login() {
+		if(isReLogin) {
+			return;
+		}
 		if (socketThread != null) {
 			socketThread.close();
 			socketThread = null;
@@ -103,8 +108,8 @@ public class SocketManager {
         return true;
     }
 
-	public void onEventMainThread(KFSocketEvent KFSocketEvent){
-    	LogUtil.d("IMService", "进入了socket事件驱动的方法中");
+	public void onEventAsync(KFSocketEvent KFSocketEvent){
+    	LogUtil.d("IMService", "进入了socket事件驱动的方法中:"+KFSocketEvent.name());
     	switch (KFSocketEvent){
     	case NONE:
     		//什么也没干呢
@@ -130,6 +135,7 @@ public class SocketManager {
 			return;
 		}
 		login();
+		isReLogin = true;
 	}
 
 	private void handlerNetWorkDown(){
@@ -138,14 +144,16 @@ public class SocketManager {
 			socketThread.setConnecting(false);
 			socketThread = null;
 			heartBeatManager.reset();
+			isReLogin = false;
 		}
 
 	}
 
 	private void handlerDisconnected(){
+		isReLogin = false;
 	 	if( Status.equals(SocketManagerStatus.CONNECTED) ||
 			Status.equals(SocketManagerStatus.LOGINED) ||
-			Status.equals(SocketManagerStatus.WAIT_LOGIN) ||
+//			Status.equals(SocketManagerStatus.WAIT_LOGIN) ||
 			Status.equals(SocketManagerStatus.CONNECTING)){
 			if(!LoginManager.getInstance(IMChatManager.getInstance().getAppContext()).isLoginOff()
 				&& !LoginManager.getInstance(IMChatManager.getInstance().getAppContext()).isKickout()) {
@@ -157,6 +165,7 @@ public class SocketManager {
 				if (netinfo != null && netinfo.isConnected()) {
 					LogUtil.d("IMService", "tcp连接被断开了,但是有网，开始重连");
 					login();
+					isReLogin = true;
 
 				}
 			}

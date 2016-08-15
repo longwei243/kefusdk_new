@@ -96,7 +96,7 @@ public class ServerMessageHandler extends IdleStateAwareChannelHandler {
 		} else if ("4".equals(result)) {
 			//被踢了
 			//发送被踢了的事件
-			EventBus.getDefault().postSticky(KFLoginEvent.LOGIN_KICKED);
+			EventBus.getDefault().post(KFLoginEvent.LOGIN_KICKED);
 			SocketManager.getInstance(IMChatManager.getInstance().getAppContext()).setStatus(SocketManagerStatus.BREAK);
 		}else if ("100".equals(result)) {
 			//有新消息之后的处理
@@ -156,6 +156,7 @@ public class ServerMessageHandler extends IdleStateAwareChannelHandler {
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
 //        super.exceptionCaught(ctx, e);
 		LogUtil.d("ServerMessageHandler", "exceptionCaught被调用了，直接断开连接");
+//		e.getCause().printStackTrace();
 		//有异常时直接断开连接
 		EventBus.getDefault().post(KFSocketEvent.MSG_SERVER_DISCONNECTED);
 		//关闭channel

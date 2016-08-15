@@ -72,7 +72,6 @@ public class LoginManager {
 				e.printStackTrace();
 			}
 			String str = "1" + jb.toString() + "\n";
-
 			socketManager.sendData(str);
 			SocketManager.getInstance(IMChatManager.getInstance().getAppContext()).setStatus(SocketManagerStatus.WAIT_LOGIN);
 			isKickout = false;

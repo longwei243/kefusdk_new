@@ -69,6 +69,7 @@ public class SocketThread extends Thread{
 	 * @param handler 负责业务数据的处理
 	 */
 	private void init(final SimpleChannelHandler handler) {
+		connTryTimes = 0;
 		try {
 			channelFactory = new NioClientSocketChannelFactory(
 					Executors.newSingleThreadExecutor(),

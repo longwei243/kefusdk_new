@@ -61,7 +61,7 @@
                                 android:layout_height="36dp"
                                 android:layout_margin="4dp"
                                 android:layout_alignParentLeft="true"
-                                android:src="@drawable/chat_file_icon"/>
+                                android:src="@drawable/kf_chat_file_icon"/>
                             <LinearLayout
                                 android:layout_margin="4dp"
                                 android:layout_toRightOf="@id/file_icon"
