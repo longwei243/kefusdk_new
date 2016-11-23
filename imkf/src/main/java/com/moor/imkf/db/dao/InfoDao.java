@@ -14,11 +14,12 @@ import java.sql.SQLException;
 public class InfoDao {
 
     private Dao<Info, Integer> infoDao = null;
-    private DataBaseHelper helper = DataBaseHelper.getHelper(IMChatManager.getInstance().getAppContext());
+    private DataBaseHelper helper;
     private static InfoDao instance;
 
     private InfoDao() {
         try {
+            helper = DataBaseHelper.getHelper(IMChatManager.getInstance().getAppContext());
             infoDao = helper.getInfoDao();
         } catch (SQLException e) {
             // TODO Auto-generated catch block
@@ -27,8 +28,12 @@ public class InfoDao {
     }
 
     public static InfoDao getInstance() {
-        if (instance == null) {
-            instance = new InfoDao();
+        if(IMChatManager.getInstance().getAppContext() != null) {
+            if (instance == null) {
+                instance = new InfoDao();
+            }
+        }else {
+            return null;
         }
         return instance;
     }
@@ -38,6 +43,9 @@ public class InfoDao {
      * @param info
      */
     public void insertInfoToDao(Info info) {
+        if(infoDao == null) {
+            return;
+        }
         try {
             infoDao.delete(infoDao.queryForAll());
             infoDao.create(info);
@@ -51,6 +59,9 @@ public class InfoDao {
      * @param connectionId
      */
     public void saveConnectionId(String connectionId) {
+        if (infoDao == null) {
+            return;
+        }
         try {
             Info info = infoDao.queryForAll().get(0);
             if(info != null) {
@@ -68,6 +79,9 @@ public class InfoDao {
      * @return
      */
     public String getConnectionId() {
+        if (infoDao == null) {
+            return "";
+        }
         String connectionId = "";
         try {
             Info info = infoDao.queryForAll().get(0);
@@ -86,6 +100,9 @@ public class InfoDao {
      * @return
      */
     public String getImServiceNo() {
+        if (infoDao == null) {
+            return "";
+        }
         String imServiceNo = "";
         try {
             Info info = infoDao.queryForAll().get(0);
@@ -104,6 +121,9 @@ public class InfoDao {
      * @return
      */
     public String getAccessId() {
+        if (infoDao == null) {
+            return "";
+        }
         String accessId = "";
         try {
             Info info = infoDao.queryForAll().get(0);
@@ -122,6 +142,9 @@ public class InfoDao {
      * @return
      */
     public String getUserId() {
+        if (infoDao == null) {
+            return "";
+        }
         String userId = "";
         try {
             Info info = infoDao.queryForAll().get(0);
@@ -140,6 +163,9 @@ public class InfoDao {
      * @return
      */
     public String getLoginName() {
+        if (infoDao == null) {
+            return "";
+        }
         String loginName = "";
         try {
             Info info = infoDao.queryForAll().get(0);
@@ -157,6 +183,9 @@ public class InfoDao {
      * 删除所有数据
      */
     public void deleteAll() {
+        if (infoDao == null) {
+            return;
+        }
         try {
             infoDao.delete(infoDao.queryForAll());
         } catch (SQLException e) {

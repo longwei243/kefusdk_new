@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 解析类
@@ -182,6 +183,22 @@ public class HttpParser {
 								message.fileDownLoadStatus = "failed";
 							}
 						}
+					}else if("iframe".equals(type)) {
+						msgType = "5";
+
+						int width = 0;
+						int height = 0;
+
+						try{
+							String iframeWidth = jb.getString("iframeWidth");
+							String iframeHeight = jb.getString("iframeHeight");
+
+							width = Integer.parseInt(iframeWidth);
+							height = Integer.parseInt(iframeHeight);
+						}catch (Exception e){}
+
+						message.iframeWidth = width;
+						message.iframeHeight = height;
 					}
 				}
 				boolean showHtml = jb.getBoolean("showHtml");

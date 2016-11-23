@@ -33,6 +33,10 @@ public class FromToMessage {
 	 * 消息类型：文件
 	 */
 	public static final String MSG_TYPE_FILE = "4";
+	/**
+	 * 消息类型：网页
+	 */
+	public static final String MSG_TYPE_IFRAME = "5";
 
 	/**
 	 * 消息的id
@@ -117,6 +121,12 @@ public class FromToMessage {
 
 	@DatabaseField
 	public Boolean showHtml;
+
+	@DatabaseField
+	public Integer iframeWidth;
+
+	@DatabaseField
+	public Integer iframeHeight;
 
 	/**
 	 * 是个人消息还是群组消息类型有：User, Group, Discussion

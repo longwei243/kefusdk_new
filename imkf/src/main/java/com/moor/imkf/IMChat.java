@@ -114,6 +114,9 @@ public class IMChat {
         public void onFailed() {
 //			Toast.makeText(ChatActivity.this, "上传7牛失败了", Toast.LENGTH_SHORT).show();;
             MessageDao.getInstance().updateFailedMsgToDao(fromToMessage);
+            if (chatListener != null) {
+                chatListener.onFailed();
+            }
         }
 
         @Override
@@ -216,9 +219,12 @@ public class IMChat {
                                         public void progress(String key, final double percent){
                                             Log.i("qiniu", key + ": " + (int) (percent * 100));
                                             int progress = (int) (percent * 100);
-                                            fromToMessage.fileProgress = progress;
-                                            MessageDao.getInstance().updateMsgToDao(fromToMessage);
-                                            chatListener.onProgress();
+                                            if(progress % 2 == 0) {
+                                                fromToMessage.fileProgress = progress;
+                                                MessageDao.getInstance().updateMsgToDao(fromToMessage);
+                                                chatListener.onProgress();
+                                            }
+
                                         }
                                     }, null));
                 }

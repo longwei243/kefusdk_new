@@ -54,7 +54,7 @@
                         android:id="@+id/chat_content_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxWidth="320dp"
+                        android:maxWidth="220dp"
                         android:background="@drawable/kf_chatto_bg_normal"
                         android:gravity="center_vertical"
                         android:lineSpacingMultiplier="1.1"

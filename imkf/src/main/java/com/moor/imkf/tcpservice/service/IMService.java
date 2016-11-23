@@ -146,6 +146,7 @@ public class IMService extends Service{
 			String succeed = HttpParser.getSucceed(responseString);
 			String message = HttpParser.getMessage(responseString);
 			boolean isLargeMsg = HttpParser.isLargeMsg(responseString);
+			System.out.println("取消息返回数据:"+responseString);
 			// 获取数据成功并且不是大量数据
 			if ("true".equals(succeed)) {
 				if(isLargeMsg) {

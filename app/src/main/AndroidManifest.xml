@@ -43,6 +43,7 @@
         <activity
             android:name="com.m7.imkfsdk.chat.OfflineMessageActicity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             >
         </activity>
         <activity

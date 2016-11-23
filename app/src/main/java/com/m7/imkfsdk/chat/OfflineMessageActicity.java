@@ -23,10 +23,13 @@ public class OfflineMessageActicity extends Activity{
     Button btn_submit;
     ImageView back;
     private String peerId;
+    LoadingFragmentDialog loadingFragmentDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.kf_dialog_offline);
+
+        loadingFragmentDialog = new LoadingFragmentDialog();
 
         back = (ImageView) findViewById(R.id.back);
         back.setOnClickListener(new View.OnClickListener() {
@@ -77,17 +80,18 @@ public class OfflineMessageActicity extends Activity{
 
                 if(!"".equals(content)) {
                     if(!"".equals(phone) || !"".equals(email)) {
+                        loadingFragmentDialog.show(getFragmentManager(), "");
                         IMChatManager.getInstance().submitOfflineMessage(peerId, content, phone, email, new OnSubmitOfflineMessageListener() {
                             @Override
                             public void onSuccess() {
-
+                                loadingFragmentDialog.dismiss();
                                 Toast.makeText(OfflineMessageActicity.this, "提交留言成功", Toast.LENGTH_SHORT).show();
                                 finish();
                             }
 
                             @Override
                             public void onFailed() {
-
+                                loadingFragmentDialog.dismiss();
                                 Toast.makeText(OfflineMessageActicity.this, "提交留言失败", Toast.LENGTH_SHORT).show();
                                 finish();
                             }
@@ -98,6 +102,13 @@ public class OfflineMessageActicity extends Activity{
                 }
             }
         });
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(intent.getStringExtra("PeerId") != null) {
+            peerId = intent.getStringExtra("PeerId");
+        }
     }
 }

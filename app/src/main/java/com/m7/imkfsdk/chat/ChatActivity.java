@@ -1180,16 +1180,19 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 					IMChat.getInstance().sendMessage(fromToMessage, new ChatListener() {
 						@Override
 						public void onSuccess() {
+							System.out.println("文件消息发送成功");
 							updateMessage();
 						}
 
 						@Override
 						public void onFailed() {
+							System.out.println("文件消息发送失败");
 							updateMessage();
 						}
 
 						@Override
 						public void onProgress() {
+							System.out.println("文件消息正在发送");
 							updateMessage();
 						}
 					});
@@ -1507,6 +1510,10 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 				}
 				break;
 		}
+	}
+
+	public ChatListView getChatListView() {
+		return mChatList;
 	}
 
 }

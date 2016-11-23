@@ -15,6 +15,7 @@ import com.m7.imkfsdk.chat.chatrow.ChatRowUtils;
 import com.m7.imkfsdk.chat.chatrow.FileRxChatRow;
 import com.m7.imkfsdk.chat.chatrow.FileTxChatRow;
 import com.m7.imkfsdk.chat.chatrow.IChatRow;
+import com.m7.imkfsdk.chat.chatrow.IframeRxChatRow;
 import com.m7.imkfsdk.chat.chatrow.ImageRxChatRow;
 import com.m7.imkfsdk.chat.chatrow.ImageTxChatRow;
 import com.m7.imkfsdk.chat.chatrow.InvestigateChatRow;
@@ -63,6 +64,7 @@ public class ChatAdapter extends BaseAdapter {
         chatRowHashMap.put(Integer.valueOf(7), new InvestigateChatRow(7));
         chatRowHashMap.put(Integer.valueOf(8), new FileRxChatRow(8));
         chatRowHashMap.put(Integer.valueOf(9), new FileTxChatRow(9));
+        chatRowHashMap.put(Integer.valueOf(10), new IframeRxChatRow(10));
     }
 
     public void setVoicePosition(int position) {

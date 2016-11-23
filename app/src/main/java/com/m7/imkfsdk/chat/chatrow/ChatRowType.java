@@ -40,7 +40,10 @@ public enum ChatRowType {
 
     FILE_ROW_RECEIVED("C600R" , Integer.valueOf(8)),
 
-    FILE_ROW_TRANSMIT("C600T" , Integer.valueOf(9));
+    FILE_ROW_TRANSMIT("C600T" , Integer.valueOf(9)),
+
+    IFRAME_ROW_RECEIVED("C700R" , Integer.valueOf(10));
+
 
     private final Integer mId;
     private final Object mDefaultValue;
