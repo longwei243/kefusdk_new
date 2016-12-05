@@ -38,6 +38,24 @@ public class IMMessage {
      * @param filePath
      * @return
      */
+    public static FromToMessage createAudioMessage(float mTime, String filePath, String voiceText) {
+        FromToMessage fromToMessage = new FromToMessage();
+        fromToMessage.msgType = FromToMessage.MSG_TYPE_AUDIO;
+        fromToMessage.userType = "0";
+        fromToMessage.when = System.currentTimeMillis();
+        fromToMessage.sessionId = IMChat.getInstance().getSessionId();
+        fromToMessage.tonotify  = IMChat.getInstance().get_id();
+        fromToMessage.type = "User";
+        fromToMessage.from = IMChat.getInstance().get_id();
+        fromToMessage.recordTime = mTime;
+        fromToMessage.voiceSecond = Math.round(mTime) + "";
+        fromToMessage.filePath = filePath;
+        fromToMessage.voiceText = voiceText;
+        fromToMessage.sendState = "sending";
+
+        return fromToMessage;
+    }
+
     public static FromToMessage createAudioMessage(float mTime, String filePath) {
         FromToMessage fromToMessage = new FromToMessage();
         fromToMessage.msgType = FromToMessage.MSG_TYPE_AUDIO;

@@ -96,6 +96,12 @@ public class HttpManager {
 				json.put("ContentType", "voice");
 				json.put("Message", URLEncoder.encode(fromToMessage.message, "utf-8"));
 				json.put("VoiceSecond", fromToMessage.voiceSecond);
+				if(fromToMessage.voiceText != null) {
+					json.put("VoiceText", fromToMessage.voiceText);
+				}else {
+					json.put("VoiceText", "");
+				}
+
 			}else if(FromToMessage.MSG_TYPE_FILE.equals(fromToMessage.msgType)) {
 				json.put("ContentType", "file");
 				json.put("Message", URLEncoder.encode(fromToMessage.message + "?fileName="+fromToMessage.fileName, "utf-8"));

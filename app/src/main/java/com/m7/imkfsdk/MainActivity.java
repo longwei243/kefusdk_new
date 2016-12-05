@@ -171,6 +171,7 @@ public class MainActivity extends Activity {
 //                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "4db84e50-2b93-11e6-8e31-2589dcc314d2", "陈辰测试", "777");
 //                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "40600870-b82e-11e5-bb61-858869d3e632", "帅测试", "777");
 //                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "ba995ec0-a57c-11e6-80ad-ed126d59818a", "海航测试", "777");
+//                IMChatManager.getInstance().init(MobileApplication.getInstance(), "com.m7.imkf.KEFU_NEW_MSG", "ad974b30-9b3e-11e6-a597-7dd254955b0d", "测试", "888");
             }
         }.start();
 

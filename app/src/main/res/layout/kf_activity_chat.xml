@@ -28,8 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:textColor="@color/all_white"
-            android:text="9999"
-            android:textSize="18dp" />
+            android:text="机器人"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/chat_btn_convert"

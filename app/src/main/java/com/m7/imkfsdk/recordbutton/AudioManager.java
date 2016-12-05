@@ -1,6 +1,7 @@
 package com.m7.imkfsdk.recordbutton;
 
 import com.moor.imkf.mp3recorder.MP3Recorder;
+import com.moor.imkf.utils.LogUtil;
 
 import java.io.File;
 import java.util.UUID;
@@ -12,7 +13,8 @@ public class AudioManager {
 
 	private String mDir;
 	private String mCurrentFilePath;
-	
+	private String mPCMFilePath;
+
 	private boolean isPrepared;
 	
 	private static AudioManager instance;
@@ -57,7 +59,10 @@ public class AudioManager {
 			File file = new File(dir, fileName);
 			mCurrentFilePath = file.getAbsolutePath();
 
-			mp3Recorder = new MP3Recorder(file);
+			File pcmFile = new File(dir, generatePCMFileName());
+			mPCMFilePath = pcmFile.getAbsolutePath();
+
+			mp3Recorder = new MP3Recorder(file, pcmFile);
 			mp3Recorder.start();
 
 			if(listener != null) {
@@ -78,10 +83,17 @@ public class AudioManager {
 		return UUID.randomUUID().toString() + ".mp3";
 	}
 
+	private String generatePCMFileName() {
+
+		return UUID.randomUUID().toString() + ".pcm";
+	}
+
 	public int getVoiceLevel(int maxLevel) {
 		if(isPrepared && mp3Recorder != null) {
 			long a =  maxLevel * mp3Recorder.getVolume();
-			long b = a / 1000;
+
+			LogUtil.e("录音音量大小=====", a+"");
+			long b = a / 100;
 			int lev = (int)b + 1;
 			if(lev > maxLevel) {
 				lev = maxLevel;
@@ -105,9 +117,17 @@ public class AudioManager {
 			file.delete();
 			mCurrentFilePath = null;
 		}
+		if(mPCMFilePath != null) {
+			File file = new File(mPCMFilePath);
+			file.delete();
+			mPCMFilePath = null;
+		}
 	}
 
 	public String getCurrentFilePath() {
 		return mCurrentFilePath;
+	}
+	public String getPCMFilePath() {
+		return mPCMFilePath;
 	}
 }

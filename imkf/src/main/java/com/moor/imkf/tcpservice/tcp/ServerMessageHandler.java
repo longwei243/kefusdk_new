@@ -21,6 +21,7 @@ import com.moor.imkf.netty.channel.ExceptionEvent;
 import com.moor.imkf.netty.channel.MessageEvent;
 import com.moor.imkf.netty.handler.timeout.IdleStateAwareChannelHandler;
 import com.moor.imkf.netty.handler.timeout.IdleStateEvent;
+import com.moor.imkf.utils.NullUtil;
 
 import java.nio.charset.Charset;
 
@@ -89,7 +90,7 @@ public class ServerMessageHandler extends IdleStateAwareChannelHandler {
 		}
 		ChannelBuffer buffer = (ChannelBuffer) e.getMessage();
 		String result = buffer.toString(Charset.defaultCharset());
-		LogUtil.d("ServerMessageHandler", "服务器返回的数据是：" + result);
+		LogUtil.e("ServerMessageHandler", "服务器返回的数据是：" + result);
 
 		if ("3".equals(result)) {
 			//心跳管理器负责
@@ -146,6 +147,24 @@ public class ServerMessageHandler extends IdleStateAwareChannelHandler {
 		}else if("finish".equals(result)) {
 			Intent finishIntent = new Intent(IMChatManager.FINISH_ACTION);
 			context.sendBroadcast(finishIntent);
+		}else if(result.startsWith("userInfo")) {
+			try{
+				String[] ss = result.split("@");
+				String type = NullUtil.checkNull(ss[1]);
+				String exten = NullUtil.checkNull(ss[2]);
+				String userName = NullUtil.checkNull(ss[3]);
+				String userIcon = NullUtil.checkNull(ss[4]);
+
+				Intent userInfoIntent = new Intent(IMChatManager.USERINFO_ACTION);
+				userInfoIntent.putExtra(IMChatManager.CONSTANT_TYPE, type);
+				userInfoIntent.putExtra(IMChatManager.CONSTANT_EXTEN, exten);
+				userInfoIntent.putExtra(IMChatManager.CONSTANT_USERNAME, userName);
+				userInfoIntent.putExtra(IMChatManager.CONSTANT_USERICON, userIcon);
+				context.sendBroadcast(userInfoIntent);
+			}catch (Exception ee) {
+
+			}
+
 		}
 	}
 

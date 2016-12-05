@@ -28,6 +28,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/kf_head_default_robot"
+            android:layout_marginLeft="8dp"
             android:scaleType="fitXY" />
 
         <TextView

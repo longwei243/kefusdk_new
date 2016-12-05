@@ -128,11 +128,20 @@ public class FromToMessage {
 	@DatabaseField
 	public Integer iframeHeight;
 
+	@DatabaseField
+	public String displayName;
+	@DatabaseField
+	public String exten;
+	@DatabaseField
+	public String im_icon;
+
 	/**
 	 * 是个人消息还是群组消息类型有：User, Group, Discussion
 	 */
 	@DatabaseField
 	public String type;
+	@DatabaseField
+	public String voiceText;
 
 	@ForeignCollectionField(eager = true)
 	public ForeignCollection<MsgInves> investigates;

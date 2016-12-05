@@ -79,8 +79,14 @@ public class DialogManager {
 
     public void updateVoiceLevel(int level) {
         if(mDialog != null && mDialog.isShowing()) {
-            int resId = context.getResources().getIdentifier("kf_v"+level, "drawable", context.getPackageName());
-            mVoice.setImageResource(resId);
+            try{
+                int resId = context.getResources().getIdentifier("kf_v"+level, "drawable", context.getPackageName());
+                mVoice.setImageResource(resId);
+            }catch (Exception e){
+                int resId = context.getResources().getIdentifier("kf_v1", "drawable", context.getPackageName());
+                mVoice.setImageResource(resId);
+            }
+
         }
     }
 

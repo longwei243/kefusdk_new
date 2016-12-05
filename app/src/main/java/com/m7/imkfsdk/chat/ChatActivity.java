@@ -51,6 +51,11 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechRecognizer;
 import com.m7.imkfsdk.MobileApplication;
 import com.m7.imkfsdk.R;
 import com.m7.imkfsdk.chat.adapter.ChatAdapter;
@@ -65,16 +70,24 @@ import com.moor.imkf.IMChatManager;
 import com.moor.imkf.IMMessage;
 import com.moor.imkf.OnConvertManualListener;
 import com.moor.imkf.OnSessionBeginListener;
+import com.moor.imkf.db.dao.InfoDao;
 import com.moor.imkf.model.entity.ChatEmoji;
 import com.moor.imkf.model.entity.ChatMore;
 import com.moor.imkf.model.entity.FromToMessage;
 import com.moor.imkf.model.entity.Investigate;
 import com.moor.imkf.model.entity.Peer;
+import com.m7.imkfsdk.utils.JsonParser;
 import com.moor.imkf.utils.LogUtil;
+import com.moor.imkf.utils.NullUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -82,7 +95,7 @@ import java.util.List;
  * @author LongWei
  */
 public class ChatActivity extends MyBaseActivity implements OnClickListener,
-		OnItemClickListener, ChatListView.OnRefreshListener, AudioRecorderButton.RecorderFinishListener {
+		OnItemClickListener, ChatListView.OnRefreshListener, AudioRecorderButton.RecorderFinishListener{
 	private ChatListView mChatList;
 	private Button mChatSend, mChatMore, mChatSetModeVoice,
 			mChatSetModeKeyboard, chat_btn_convert;
@@ -93,6 +106,7 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 			mChatMoreContainer;
 	private LinearLayout mMore;
 	private AudioRecorderButton mRecorderButton;
+//	private SpeechRecorderButton mRecorderButton;
 	private RelativeLayout mChatFaceContainer;
 	private ImageView mChatEmojiNormal, mChatEmojiChecked;
 	private InputMethodManager manager;
@@ -183,6 +197,7 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 			if(msg.what == 0x88) {
 				updateMessage();
 			}
+
 			if ("拍照".equals(msg.obj)) {
 				if(Build.VERSION.SDK_INT < 23) {
 					takePicture();
@@ -319,6 +334,7 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 		kefuIntentFilter.addAction(IMChatManager.INVESTIGATE_ACTION);
 		kefuIntentFilter.addAction(IMChatManager.QUEUENUM_ACTION);
 		kefuIntentFilter.addAction(IMChatManager.FINISH_ACTION);
+		kefuIntentFilter.addAction(IMChatManager.USERINFO_ACTION);
 		keFuStatusReceiver = new KeFuStatusReceiver();
 		registerReceiver(keFuStatusReceiver, kefuIntentFilter);
 
@@ -440,8 +456,6 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 		chat_btn_convert = (Button) this.findViewById(R.id.chat_btn_convert);
 
 		mOtherName = (TextView) this.findViewById(R.id.other_name);
-		mOtherName.setText("客服");
-
 		mChatInput.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 			@Override
@@ -552,6 +566,10 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 
 		chat_queue_ll = (LinearLayout) findViewById(R.id.chat_queue_ll);
 		chat_queue_tv = (TextView) findViewById(R.id.chat_queue_tv);
+
+
+//		mRecorderButton = (SpeechRecorderButton) findViewById(R.id.chat_press_to_speak);
+//		mRecorderButton.setSpeechRecorderListener(this);
 	}
 
 	// 注册监听方法
@@ -745,6 +763,7 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 	public void setOnCorpusSelectedListener(OnCorpusSelectedListener listener) {
 		mListener = listener;
 	}
+
 
 	// 表情选择监听器
 	public interface OnCorpusSelectedListener {
@@ -1277,38 +1296,77 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 		}
 	}
 
-	@Override
-	public void onRecordFinished(float mTime, String filePath) {
-		//录音完成了
-		//先拼装一条语音消息体
-		FromToMessage fromToMessage = IMMessage.createAudioMessage(mTime, filePath);
-		//界面显示
-		ArrayList fromTomsgs = new ArrayList<FromToMessage>();
 
-		fromTomsgs.add(fromToMessage);
-		descFromToMessage.addAll(fromTomsgs);
-		chatAdapter.notifyDataSetChanged();
-		mChatList.setSelection(descFromToMessage.size());
 
-		IMChat.getInstance().sendMessage(fromToMessage, new ChatListener() {
+	private void voiceToText(String newFilePath, final FromToMessage fromToMessage) {
+		SpeechRecognizer mIat= SpeechRecognizer.createRecognizer(ChatActivity.this, null);
+		mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+		mIat.setParameter(SpeechConstant.AUDIO_SOURCE, "-2");
+		mIat.setParameter(SpeechConstant.ASR_SOURCE_PATH, newFilePath);
+		mIat.startListening(new RecognizerListener() {
 			@Override
-			public void onSuccess() {
-				updateMessage();
+			public void onVolumeChanged(int i, byte[] bytes) {
+				LogUtil.e("科大讯飞语音转化回调","onVolumeChanged");
 			}
 
 			@Override
-			public void onFailed() {
-				updateMessage();
+			public void onBeginOfSpeech() {
+				LogUtil.e("科大讯飞语音转化回调","onBeginOfSpeech");
 			}
 
 			@Override
-			public void onProgress() {
+			public void onEndOfSpeech() {
+				LogUtil.e("科大讯飞语音转化回调","onEndOfSpeech");
+			}
 
+			@Override
+			public void onResult(RecognizerResult recognizerResult, boolean b) {
+				LogUtil.e("科大讯飞语音转化回调","onResult");
+				if(b) {
+					printResult(recognizerResult, fromToMessage);
+				}
+
+			}
+
+			@Override
+			public void onError(SpeechError speechError) {
+				LogUtil.e("科大讯飞语音转化回调onError",speechError.getPlainDescription(true));
+			}
+
+			@Override
+			public void onEvent(int i, int i1, int i2, Bundle bundle) {
+				LogUtil.e("科大讯飞语音转化回调","onEvent");
 			}
 		});
-
 	}
 
+
+	private HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
+
+	private void printResult(RecognizerResult results, FromToMessage fromToMessage) {
+		String text = JsonParser.parseIatResult(results.getResultString());
+
+		String sn = null;
+		// 读取json结果中的sn字段
+		try {
+			JSONObject resultJson = new JSONObject(results.getResultString());
+			sn = resultJson.optString("sn");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		mIatResults.put(sn, text);
+
+		StringBuffer resultBuffer = new StringBuffer();
+		for (String key : mIatResults.keySet()) {
+			resultBuffer.append(mIatResults.get(key));
+		}
+
+		String voiceText = resultBuffer.toString();
+
+		sendVoiceMsg(voiceText, fromToMessage);
+
+	}
 
 	/**
 	 * 新消息接收器,用来通知界面进行更新
@@ -1357,6 +1415,16 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 			}else if(IMChatManager.FINISH_ACTION.equals(action)) {
 				//客服关闭了会话
 				handler.sendEmptyMessage(0x777);
+			}else if(IMChatManager.USERINFO_ACTION.equals(action)) {
+				//客服信息
+				String type = intent.getStringExtra(IMChatManager.CONSTANT_TYPE);
+				String exten = intent.getStringExtra(IMChatManager.CONSTANT_EXTEN);
+				String userName = intent.getStringExtra(IMChatManager.CONSTANT_USERNAME);
+				String userIcon = intent.getStringExtra(IMChatManager.CONSTANT_USERICON);
+
+				LogUtil.e("聊天界面,客服姓名", NullUtil.checkNull(userName));
+
+				mOtherName.setText("客服"+userName+"为您服务");
 			}
 		}
 	}
@@ -1514,6 +1582,45 @@ public class ChatActivity extends MyBaseActivity implements OnClickListener,
 
 	public ChatListView getChatListView() {
 		return mChatList;
+	}
+
+
+	@Override
+	public void onRecordFinished(float mTime, String filePath, String pcmFilePath) {
+
+		//先在界面上显示出来
+		FromToMessage fromToMessage = IMMessage.createAudioMessage(mTime, filePath, "");
+		descFromToMessage.add(fromToMessage);
+		chatAdapter.notifyDataSetChanged();
+		mChatList.setSelection(descFromToMessage.size());
+
+		voiceToText(pcmFilePath, fromToMessage);
+	}
+
+	/**
+	 * 发送录音消息
+	 * @param voiceText
+     */
+	private void sendVoiceMsg(String voiceText, FromToMessage fromToMessage){
+
+		fromToMessage.voiceText = voiceText;
+
+		IMChat.getInstance().sendMessage(fromToMessage, new ChatListener() {
+			@Override
+			public void onSuccess() {
+				updateMessage();
+			}
+
+			@Override
+			public void onFailed() {
+				updateMessage();
+			}
+
+			@Override
+			public void onProgress() {
+
+			}
+		});
 	}
 
 }

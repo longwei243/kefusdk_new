@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.ContextMenu;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
 import com.m7.imkfsdk.R;
 import com.m7.imkfsdk.chat.holder.BaseHolder;
 import com.m7.imkfsdk.chat.holder.ViewHolderTag;
@@ -87,16 +88,16 @@ public abstract class BaseChatRow implements IChatRow{
         buildChattingData(context, baseHolder, detail, position);
 
         //设置用户头像
-//        String imgPath = "";
-//        if(baseHolder.getChattingAvatar() != null) {
-//            if ("0".equals(detail.userType)) {
-//                if (!"".equals(imgPath)) {
-//                    Glide.with(context).load(imgPath)
-//                            .placeholder(R.drawable.kf_head_default_local)
-//                            .into(baseHolder.getChattingAvatar());
-//                }
-//            }
-//        }
+        String imgPath = detail.im_icon;
+        if(baseHolder.getChattingAvatar() != null) {
+            if ("1".equals(detail.userType)) {
+                if (imgPath != null && !"".equals(imgPath)) {
+                    Glide.with(context).load(imgPath+"?imageView2/0/w/100/h/100")
+                            .placeholder(R.drawable.kf_head_default_robot)
+                            .into(baseHolder.getChattingAvatar());
+                }
+            }
+        }
     }
 
 

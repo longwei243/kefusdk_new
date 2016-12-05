@@ -6,6 +6,7 @@ import com.moor.imkf.model.entity.FromToMessage;
 import com.moor.imkf.model.entity.Investigate;
 import com.moor.imkf.model.entity.Peer;
 import com.moor.imkf.utils.LogUtil;
+import com.moor.imkf.utils.NullUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -203,11 +204,19 @@ public class HttpParser {
 				}
 				boolean showHtml = jb.getBoolean("showHtml");
 
-				message._id = _id;
-				message.sessionId = sid;
-				message.when = when;
-				message.msgType = msgType;
+				String exten = jb.getString("exten");
+				String displayName = jb.getString("displayName");
+				String im_icon = jb.getString("im_icon");
+
+				message._id = NullUtil.checkNull(_id);
+				message.sessionId = NullUtil.checkNull(sid);
+				message.when = NullUtil.checkNull(when);
+				message.msgType = NullUtil.checkNull(msgType);
 				message.showHtml = showHtml;
+
+				message.exten = NullUtil.checkNull(exten);
+				message.displayName = NullUtil.checkNull(displayName);
+				message.im_icon = NullUtil.checkNull(im_icon);
 
 				newMessage.add(message);
 

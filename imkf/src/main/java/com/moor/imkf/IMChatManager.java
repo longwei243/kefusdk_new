@@ -63,9 +63,17 @@ public class IMChatManager {
      */
     public static final String QUEUENUM_ACTION = "action_queuenum";
     /**
+     * 客服信息
+     */
+    public static final String USERINFO_ACTION = "action_userinfo";
+    /**
      * 会话结束
      */
     public static final String FINISH_ACTION = "action_finish";
+    public static final String CONSTANT_TYPE = "type";
+    public static final String CONSTANT_EXTEN = "exten";
+    public static final String CONSTANT_USERNAME = "username";
+    public static final String CONSTANT_USERICON = "usericon";
     private  boolean isInvestigateOn = true;
 
     private Context appContext;

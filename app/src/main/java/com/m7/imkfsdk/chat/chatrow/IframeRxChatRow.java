@@ -67,11 +67,6 @@ public class IframeRxChatRow extends BaseChatRow {
                 public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                     handler.proceed();
                 }
-
-//                @Override
-//                public void onReceivedClientCertRequest(WebView view, ClientCertRequest request) {
-//                    request.proceed();
-//                }
             });
 
             holder.getWebView().setOnTouchListener(new View.OnTouchListener() {

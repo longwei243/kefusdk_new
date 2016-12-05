@@ -66,6 +66,7 @@ public class LoginManager {
 				jb.put("Platform", "android");
 				jb.put("DeviceId", getDeviceId());
 				jb.put("NewVersion", "true");
+				jb.put("sdkAndroidVersionCode", "2");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			} catch (UnsupportedEncodingException e) {

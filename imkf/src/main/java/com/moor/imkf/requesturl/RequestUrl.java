@@ -7,8 +7,7 @@ package com.moor.imkf.requesturl;
  */
 public class RequestUrl {
 	public static int baseTcpPort = 8006;
-//	public static String QiniuHttp = "http://7xkag6.com2.z0.glb.qiniucdn.com/";
-	public static String QiniuHttp = "https://fs-im-kefu.7moor.com/";
+	public static String QiniuHttp = "http://fs-im-resources.7moor.com/";
 	//正式
 //	public static String baseTcpHost = "115.29.190.253";
 //	public static String baseHttp1 = "http://115.29.190.253:4999/sdkChat";

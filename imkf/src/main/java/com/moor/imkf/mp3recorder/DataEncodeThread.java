@@ -7,12 +7,17 @@ import android.os.Message;
 
 
 import com.moor.imkf.mp3recorder.util.LameUtil;
+import com.moor.imkf.utils.LogUtil;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,9 +28,11 @@ public class DataEncodeThread extends Thread implements AudioRecord.OnRecordPosi
 	private StopHandler mHandler;
 	private byte[] mMp3Buffer;
 	private FileOutputStream mFileOutputStream;
+	private FileOutputStream mPCMFileOutputStream;
+	BufferedOutputStream bos;
+	DataOutputStream dos;
 
 	private CountDownLatch mHandlerInitLatch = new CountDownLatch(1);
-	
 	/**
 	 * @see <a>https://groups.google.com/forum/?fromgroups=#!msg/android-developers/1aPZXZG6kWk/lIYDavGYn5UJ</a>
 	 * @author buihong_ha
@@ -62,6 +69,15 @@ public class DataEncodeThread extends Thread implements AudioRecord.OnRecordPosi
 	public DataEncodeThread(File file, int bufferSize) throws FileNotFoundException {
 		this.mFileOutputStream = new FileOutputStream(file);
 		mMp3Buffer = new byte[(int) (7200 + (bufferSize * 2 * 1.25))];
+	}
+
+	public DataEncodeThread(File file, int bufferSize, File pcmFile) throws FileNotFoundException {
+		this.mFileOutputStream = new FileOutputStream(file);
+		this.mPCMFileOutputStream = new FileOutputStream(pcmFile);
+		mMp3Buffer = new byte[(int) (7200 + (bufferSize * 2 * 1.25))];
+
+		bos = new BufferedOutputStream(mPCMFileOutputStream);
+		dos = new DataOutputStream(bos);
 	}
 
 	@Override
@@ -101,9 +117,17 @@ public class DataEncodeThread extends Thread implements AudioRecord.OnRecordPosi
 	private int processData() {	
 		if (mTasks.size() > 0) {
 			Task task = mTasks.remove(0);
-			short[] buffer = task.getData();
+			byte[] buffer = task.getData();
 			int readSize = task.getReadSize();
-			int encodedSize = LameUtil.encode(buffer, buffer, readSize, mMp3Buffer);
+
+			if (readSize > 0){
+				try {
+					mPCMFileOutputStream.write(buffer);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			int encodedSize = LameUtil.encode(byteArray2ShortArray(buffer, buffer.length/2), byteArray2ShortArray(buffer, buffer.length/2), readSize/2, mMp3Buffer);
 			if (encodedSize > 0){
 				try {
 					mFileOutputStream.write(mMp3Buffer, 0, encodedSize);
@@ -111,6 +135,7 @@ public class DataEncodeThread extends Thread implements AudioRecord.OnRecordPosi
                     e.printStackTrace();
 				}
 			}
+
 			return readSize;
 		}
 		return 0;
@@ -135,26 +160,42 @@ public class DataEncodeThread extends Thread implements AudioRecord.OnRecordPosi
 						e.printStackTrace();
 					}
 				}
+				if (mPCMFileOutputStream != null) {
+					try {
+						mPCMFileOutputStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 				LameUtil.close();
 			}
 		}
 	}
 	private List<Task> mTasks = Collections.synchronizedList(new ArrayList<Task>());
-	public void addTask(short[] rawData, int readSize){
+	public void addTask(byte[] rawData, int readSize){
 		mTasks.add(new Task(rawData, readSize));
 	}
 	private class Task{
-		private short[] rawData;
+		private byte[] rawData;
 		private int readSize;
-		public Task(short[] rawData, int readSize){
+		public Task(byte[] rawData, int readSize){
 			this.rawData = rawData.clone();
 			this.readSize = readSize;
 		}
-		public short[] getData(){
+		public byte[] getData(){
 			return rawData;
 		}
 		public int getReadSize(){
 			return readSize;
 		}
+	}
+
+
+	public short[] byteArray2ShortArray(byte[] data, int items) {
+		short[] retVal = new short[items];
+		for (int i = 0; i < retVal.length; i++) {
+			retVal[i] = (short) ((data[i * 2] & 0xff) | (data[i * 2 + 1] & 0xff) << 8);
+		}
+		return retVal;
 	}
 }

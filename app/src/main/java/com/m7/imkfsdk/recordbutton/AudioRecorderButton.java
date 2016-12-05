@@ -57,7 +57,7 @@ public class AudioRecorderButton extends Button implements AudioManager.AudioSta
 	};
 	
 	public interface RecorderFinishListener {
-		void onRecordFinished(float mTime, String filePath);
+		void onRecordFinished(float mTime, String filePath, String pcmFilePath);
 	}
 
     public AudioRecorderButton(Context context) {
@@ -148,7 +148,7 @@ public class AudioRecorderButton extends Button implements AudioManager.AudioSta
                     mDialogManager.dismissDialog();
                     
                     if(listener != null) {
-                    	listener.onRecordFinished(mTime, mAudioManager.getCurrentFilePath());
+                    	listener.onRecordFinished(mTime, mAudioManager.getCurrentFilePath(), mAudioManager.getPCMFilePath());
                     }
                     mAudioManager.release();
                 }else if(mCurrentState == STATE_WANT_TO_CANCEL) {

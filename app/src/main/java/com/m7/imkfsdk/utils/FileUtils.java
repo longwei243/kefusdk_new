@@ -1,5 +1,12 @@
 package com.m7.imkfsdk.utils;
 
+import android.content.Context;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Created by longwei on 16/7/29.
  */
@@ -43,5 +50,25 @@ public class FileUtils {
             // No extension.
             return "";
         }
+    }
+
+    public static byte[] readAudioFile(Context context, String filename) {
+        File file = new File(filename);
+        if(file != null) {
+            try {
+                InputStream ins = new FileInputStream(file);
+                byte[] data = new byte[ins.available()];
+                ins.read(data);
+                ins.close();
+
+                return data;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+
+        return null;
     }
 }
